@@ -1,0 +1,188 @@
+<?xml version="1.0"?>
+<cycles>
+	<shader name="default_surface" ui_name="default_surface">
+		<principled_bsdf name="1920586330368" ui_name="principled_bsdf" />
+		<geometry name="1922134615872" ui_name="geometry" />
+		<connect from_node="1920586330368" from_socket="BSDF" from_socket_ui="BSDF" to_node="output" to_socket="surface" to_socket_ui="Surface" />
+		<connect from_node="1922134615872" from_socket="normal" from_socket_ui="Normal" to_node="1920586330368" to_socket="normal" to_socket_ui="Normal" />
+		<connect from_node="1922134615872" from_socket="normal" from_socket_ui="Normal" to_node="1920586330368" to_socket="coat_normal" to_socket_ui="Coat Normal" />
+	</shader>
+	<shader name="default_volume" ui_name="default_volume">
+		<principled_volume name="1920653548336" ui_name="principled_volume">
+			<socket name="density_attribute" ui_name="Density Attribute" value="density" type_name="string" />
+			<socket name="temperature_attribute" ui_name="Temperature Attribute" value="temperature" type_name="string" />
+		</principled_volume>
+		<connect from_node="1920653548336" from_socket="volume" from_socket_ui="Volume" to_node="output" to_socket="volume" to_socket_ui="Volume" />
+	</shader>
+	<shader name="default_light" ui_name="default_light" />
+	<shader name="default_background" ui_name="default_background">
+		<socket name="volume_sampling_method" ui_name="Volume Sampling Method" value="equiangular" type_name="enum" />
+		<environment_texture name="1921576988224" ui_name="2_Environment Texture" channels="4" width="1024" height="512" type="0" colorspace="scene_linear" colorspace_file_hint="" colorspace_file_format="openexr">
+			<socket name="tex_mapping.type" ui_name="Type" value="point" type_name="enum" />
+
+			<!-- <socket name="filename" ui_name="Filename" value="0" type_name="string" /> -->
+			<socket name="filename" ui_name="Filename" value="/mnt/proj2/eu-25-121/milanjaros/openfoam/data/cyclesphi/scenes_ppam2026/city.exr" type_name="string" />
+
+			<socket name="colorspace" ui_name="Colorspace" value="Linear Rec.709" type_name="string" />
+			<socket name="alpha_type" ui_name="Alpha Type" value="associated" type_name="enum" />
+		</environment_texture>
+		<background_shader name="1920724090176" ui_name="3_Background">
+			<socket name="color" ui_name="Color" value="0.0508761 0.0508761 0.0508761 0" type_name="color" />
+		</background_shader>
+		<light_path name="1922134602560" ui_name="4_Light Path" />
+		<mix_closure name="1922134615248" ui_name="5_Mix Shader" />
+		<geometry name="1922134611296" ui_name="geometry" />
+		<mix_closure_weight name="1922134612544" ui_name="mix_closure_weight" />
+		<connect from_node="1921576988224" from_socket="color" from_socket_ui="Color" to_node="1920724090176" to_socket="color" to_socket_ui="Color" />
+		<connect from_node="1920724090176" from_socket="background" from_socket_ui="Background" to_node="1922134615248" to_socket="closure1" to_socket_ui="Closure1" />
+		<connect from_node="1922134602560" from_socket="is_camera_ray" from_socket_ui="Is Camera Ray" to_node="1922134615248" to_socket="fac" to_socket_ui="Fac" />
+		<connect from_node="1922134602560" from_socket="is_camera_ray" from_socket_ui="Is Camera Ray" to_node="1922134612544" to_socket="fac" to_socket_ui="Fac" />
+		<connect from_node="1922134615248" from_socket="closure" from_socket_ui="Closure" to_node="output" to_socket="surface" to_socket_ui="Surface" />
+		<connect from_node="1922134611296" from_socket="position" from_socket_ui="Position" to_node="1921576988224" to_socket="vector" to_socket_ui="Vector" />
+		<connect from_node="1922134612544" from_socket="weight1" from_socket_ui="Weight1" to_node="1920724090176" to_socket="surface_mix_weight" to_socket_ui="SurfaceMixWeight" />
+	</shader>
+	<shader name="default_empty" ui_name="default_empty" />
+	<shader name="1920631307040" ui_name="Material.001">
+		<attribute name="1920529568656" ui_name="1_Attribute">
+			<socket name="attribute" ui_name="Attribute" value="Q_in_nodes" type_name="string" />
+		</attribute>
+		<map_range name="1920724091376" ui_name="2_Map Range">
+			<socket name="from_min" ui_name="From Min" value="500" type_name="float" />
+			<socket name="from_max" ui_name="From Max" value="10000" type_name="float" />
+		</map_range>
+		<rgb_ramp name="1921692941776" ui_name="3_Color Ramp">
+			<socket name="ramp" ui_name="Ramp" value="8388616" type_name="array_color" />
+			<socket name="ramp_alpha" ui_name="Ramp Alpha" value="8392736" type_name="array_float" />
+			<socket name="fac" ui_name="Fac" value="0.5" type_name="float" />
+		</rgb_ramp>
+		<principled_volume name="1920720626048" ui_name="5_Principled Volume">
+			<socket name="temperature_attribute" ui_name="Temperature Attribute" value="temperature" type_name="string" />
+		</principled_volume>
+		<connect from_node="1920529568656" from_socket="fac" from_socket_ui="Fac" to_node="1920724091376" to_socket="value" to_socket_ui="Value" />
+		<connect from_node="1920724091376" from_socket="result" from_socket_ui="Result" to_node="1921692941776" to_socket="fac" to_socket_ui="Fac" />
+		<connect from_node="1921692941776" from_socket="color" from_socket_ui="Color" to_node="1920720626048" to_socket="color" to_socket_ui="Color" />
+		<connect from_node="1921692941776" from_socket="alpha" from_socket_ui="Alpha" to_node="1920720626048" to_socket="density" to_socket_ui="Density" />
+		<connect from_node="1920720626048" from_socket="volume" from_socket_ui="Volume" to_node="output" to_socket="volume" to_socket_ui="Volume" />
+	</shader>
+	<camera name="camera" ui_name="camera">
+		<socket name="shuttertime" ui_name="Shutter Time" value="0.5" type_name="float" />
+		<socket name="shutter_curve" ui_name="Shutter Curve" value="8393772" type_name="array_float" />
+		<socket name="focaldistance" ui_name="Focal Distance" value="0" type_name="float" />
+		<socket name="matrix" ui_name="Matrix" value="0.635139 -0.145702 -0.758531 29.6 0.772398 0.119809 0.623737 -20.0078 6.90725e-07 0.982047 -0.188635 7.77537" type_name="transform" />
+		<socket name="motion" ui_name="Motion" value="8394808" type_name="array_transform" />
+		<socket name="panorama_type" ui_name="Panorama Type" value="fisheye_equisolid" type_name="enum" />
+		<socket name="fov" ui_name="FOV" value="0.3" type_name="float" />
+		<socket name="fov_pre" ui_name="FOV Pre" value="0.3" type_name="float" />
+		<socket name="fov_post" ui_name="FOV Post" value="0.3" type_name="float" />
+		<socket name="fisheye_polynomial_k0" ui_name="Fisheye Polynomial K0" value="-1.17351e-05" type_name="float" />
+		<socket name="fisheye_polynomial_k1" ui_name="Fisheye Polynomial K1" value="-0.0199887" type_name="float" />
+		<socket name="fisheye_polynomial_k2" ui_name="Fisheye Polynomial K2" value="-3.35253e-06" type_name="float" />
+		<socket name="fisheye_polynomial_k3" ui_name="Fisheye Polynomial K3" value="3.09928e-06" type_name="float" />
+		<socket name="fisheye_polynomial_k4" ui_name="Fisheye Polynomial K4" value="-2.60646e-08" type_name="float" />
+		<socket name="nearclip" ui_name="Near Clip" value="0.1" type_name="float" />
+		<socket name="farclip" ui_name="Far Clip" value="100" type_name="float" />
+		<socket name="viewplane.left" ui_name="Viewplane Left" value="-1.77778" type_name="float" />
+		<socket name="viewplane.right" ui_name="Viewplane Right" value="1.77778" type_name="float" />
+		<socket name="viewplane.bottom" ui_name="Viewplane Bottom" value="-1" type_name="float" />
+		<socket name="viewplane.top" ui_name="Viewplane Top" value="1" type_name="float" />
+		<socket name="border.right" ui_name="Border Right" value="1" type_name="float" />
+		<socket name="border.top" ui_name="Border Top" value="1" type_name="float" />
+		<socket name="viewport_camera_border.right" ui_name="Viewport Border Right" value="1" type_name="float" />
+		<socket name="viewport_camera_border.top" ui_name="Viewport Border Top" value="1" type_name="float" />
+		<socket name="offscreen_dicing_scale" ui_name="Offscreen Dicing Scale" value="4" type_name="float" />
+		<socket name="full_width" ui_name="Full Width" value="1920" type_name="int" />
+		<socket name="full_height" ui_name="Full Height" value="1080" type_name="int" />
+	</camera>
+	<camera name="dicing_camera" ui_name="camera">
+		<socket name="shuttertime" ui_name="Shutter Time" value="0.5" type_name="float" />
+		<socket name="shutter_curve" ui_name="Shutter Curve" value="8394960" type_name="array_float" />
+		<socket name="focaldistance" ui_name="Focal Distance" value="0" type_name="float" />
+		<socket name="matrix" ui_name="Matrix" value="0.635139 -0.145702 -0.758531 29.6 0.772398 0.119809 0.623737 -20.0078 6.90725e-07 0.982047 -0.188635 7.77537" type_name="transform" />
+		<socket name="motion" ui_name="Motion" value="8395996" type_name="array_transform" />
+		<socket name="panorama_type" ui_name="Panorama Type" value="fisheye_equisolid" type_name="enum" />
+		<socket name="fov" ui_name="FOV" value="0.3" type_name="float" />
+		<socket name="fov_pre" ui_name="FOV Pre" value="0.3" type_name="float" />
+		<socket name="fov_post" ui_name="FOV Post" value="0.3" type_name="float" />
+		<socket name="fisheye_polynomial_k0" ui_name="Fisheye Polynomial K0" value="-1.17351e-05" type_name="float" />
+		<socket name="fisheye_polynomial_k1" ui_name="Fisheye Polynomial K1" value="-0.0199887" type_name="float" />
+		<socket name="fisheye_polynomial_k2" ui_name="Fisheye Polynomial K2" value="-3.35253e-06" type_name="float" />
+		<socket name="fisheye_polynomial_k3" ui_name="Fisheye Polynomial K3" value="3.09928e-06" type_name="float" />
+		<socket name="fisheye_polynomial_k4" ui_name="Fisheye Polynomial K4" value="-2.60646e-08" type_name="float" />
+		<socket name="nearclip" ui_name="Near Clip" value="0.1" type_name="float" />
+		<socket name="farclip" ui_name="Far Clip" value="100" type_name="float" />
+		<socket name="viewplane.left" ui_name="Viewplane Left" value="-1.77778" type_name="float" />
+		<socket name="viewplane.right" ui_name="Viewplane Right" value="1.77778" type_name="float" />
+		<socket name="viewplane.bottom" ui_name="Viewplane Bottom" value="-1" type_name="float" />
+		<socket name="viewplane.top" ui_name="Viewplane Top" value="1" type_name="float" />
+		<socket name="border.right" ui_name="Border Right" value="1" type_name="float" />
+		<socket name="border.top" ui_name="Border Top" value="1" type_name="float" />
+		<socket name="viewport_camera_border.right" ui_name="Viewport Border Right" value="1" type_name="float" />
+		<socket name="viewport_camera_border.top" ui_name="Viewport Border Top" value="1" type_name="float" />
+		<socket name="offscreen_dicing_scale" ui_name="Offscreen Dicing Scale" value="4" type_name="float" />
+		<socket name="full_width" ui_name="Full Width" value="1920" type_name="int" />
+		<socket name="full_height" ui_name="Full Height" value="1080" type_name="int" />
+	</camera>
+	<film name="film" ui_name="film">
+		<socket name="filter_type" ui_name="Filter Type" value="blackman_harris" type_name="enum" />
+		<socket name="filter_width" ui_name="Filter Width" value="1.5" type_name="float" />
+		<socket name="mist_start" ui_name="Mist Start" value="5" type_name="float" />
+		<socket name="mist_depth" ui_name="Mist Depth" value="25" type_name="float" />
+		<socket name="mist_falloff" ui_name="Mist Falloff" value="2" type_name="float" />
+		<socket name="cryptomatte_depth" ui_name="Cryptomatte Depth" value="3" type_name="int" />
+		<socket name="use_approximate_shadow_catcher" ui_name="Use Approximate Shadow Catcher" value="true" type_name="boolean" />
+	</film>
+	<background name="background" ui_name="background">
+		<socket name="visibility" ui_name="Visibility" value="157" type_name="uint" />
+	</background>
+	<integrator name="integrator" ui_name="integrator">
+		<socket name="max_bounce" ui_name="Max Bounce" value="12" type_name="int" />
+		<socket name="max_diffuse_bounce" ui_name="Max Diffuse Bounce" value="4" type_name="int" />
+		<socket name="max_glossy_bounce" ui_name="Max Glossy Bounce" value="4" type_name="int" />
+		<socket name="max_transmission_bounce" ui_name="Max Transmission Bounce" value="12" type_name="int" />
+		<socket name="max_volume_bounce" ui_name="Max Volume Bounce" value="0" type_name="int" />
+		<socket name="transparent_max_bounce" ui_name="Transparent Max Bounce" value="8" type_name="int" />
+		<socket name="ao_distance" ui_name="AO Distance" value="10" type_name="float" />
+		<socket name="volume_ray_marching" ui_name="Biased" value="true" type_name="boolean" />
+		<socket name="volume_max_steps" ui_name="Volume Max Steps" value="64" type_name="int" />
+		<socket name="filter_glossy" ui_name="Filter Glossy" value="1" type_name="float" />
+		<socket name="aa_samples" ui_name="AA Samples" value="1" type_name="int" />
+		<socket name="sample_subset_length" ui_name="Sample Subset Length" value="2048" type_name="int" />
+		<socket name="use_adaptive_sampling" ui_name="Use Adaptive Sampling" value="false" type_name="boolean" />
+		<socket name="light_sampling_threshold" ui_name="Light Sampling Threshold" value="0.01" type_name="float" />
+	</integrator>
+	<volume name="1920714918928" ui_name="origin_cut_512" geometry_type="2">
+		<socket name="used_shaders" ui_name="Shaders" value="1920631307040" type_name="array_node" />
+		<socket name="triangles" ui_name="Triangles" value="8396148" type_name="array_int" />
+		<socket name="verts" ui_name="Vertices" value="9014252" type_name="array_point" />
+		<socket name="shader" ui_name="Shader" value="9426436" type_name="array_int" />
+		<socket name="smooth" ui_name="Smooth" value="9632476" type_name="array_boolean" />
+		<socket name="object_space" ui_name="Object Space" value="true" type_name="boolean" />
+
+		<!-- <attribute name="Q_in_nodes" std="ATTR_STD_NONE" type="float" element="ATTR_ELEMENT_VOXEL" flags="0" buffer="9683992" volume_type="openvdb" /> -->
+		<!-- <attribute name="{GRID_NAME}" std="ATTR_STD_NONE" type="float" element="ATTR_ELEMENT_VOXEL" flags="0" buffer="{VDB_DATA}" volume_type="openvdb"/> -->
+		<!-- interpolation="INTERPOLATION_CLOSEST" -->
+		<attribute name="{GRID_NAME}" std="ATTR_STD_NONE" type="float" element="ATTR_ELEMENT_VOXEL" flags="0" buffer="{VDB_DATA}" volume_type="openvdb"/>
+
+		<attribute name="N" std="ATTR_STD_VERTEX_NORMAL" type="normal" element="ATTR_ELEMENT_VERTEX_NORMAL" flags="0" buffer="9684065" />
+	</volume>
+	<backgroundlight name="1920610319296" ui_name="backgroundlight" geometry_type="5">
+		<socket name="used_shaders" ui_name="Shaders" value="default_background" type_name="array_node" />
+		<socket name="light_type" ui_name="Type" value="background" type_name="enum" />
+		<socket name="use_mis" ui_name="Use Mis" value="true" type_name="boolean" />
+		<socket name="average_radiance" ui_name="Average Radiance" value="0.930819" type_name="float" />
+	</backgroundlight>
+	<object name="1920659121216" ui_name="origin_cut_512">
+		<socket name="geometry" ui_name="Geometry" value="1920714918928" type_name="node" />
+		<socket name="tfm" ui_name="Transform" value="0.01 0 0 2.41621e-06 0 -4.37114e-10 -0.01 -4.51341e-06 0 0.01 -4.37114e-10 3.34095e-06" type_name="transform" />
+		<socket name="visibility" ui_name="Visibility" value="1693" type_name="uint" />
+		<socket name="color" ui_name="Color" value="1 1 1 0" type_name="color" />
+		<socket name="alpha" ui_name="Alpha" value="1" type_name="float" />
+		<socket name="random_id" ui_name="Random ID" value="1037753062" type_name="uint" />
+		<socket name="asset_name" ui_name="Asset Name" value="origin_cut_512" type_name="string" />
+	</object>
+	<object name="1920659125104" ui_name="object">
+		<socket name="geometry" ui_name="Geometry" value="1920610319296" type_name="node" />
+		<socket name="asset_name" ui_name="Asset Name" value="World" type_name="string" />
+		<socket name="is_shadow_catcher" ui_name="Shadow Catcher" value="true" type_name="boolean" />
+	</object>
+</cycles>

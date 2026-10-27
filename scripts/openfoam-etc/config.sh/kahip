@@ -1,0 +1,4 @@
+# OpenFOAM site override (FOAM_CONFIG_ETC): KaHIP from Lmod module
+# KaHIP/3.19-gompi-2025b
+KAHIP_VERSION="kahip-${EBVERSIONKAHIP:-system}"
+export KAHIP_ARCH_PATH="$EBROOTKAHIP"

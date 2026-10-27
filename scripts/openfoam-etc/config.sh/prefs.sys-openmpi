@@ -1,0 +1,3 @@
+# OpenFOAM site override (FOAM_CONFIG_ETC): OpenMPI prefix from foss/2025b
+# (OpenMPI 5 has no orte-info, so give the prefix explicitly)
+export MPI_ARCH_PATH="$EBROOTOPENMPI"

@@ -1,0 +1,4 @@
+# OpenFOAM site override (FOAM_CONFIG_ETC): SCOTCH/PT-SCOTCH from Lmod module
+# SCOTCH/7.0.10-gompi-2025b (SCOTCH_Num = int, matches WM_LABEL_SIZE=32)
+export SCOTCH_VERSION="scotch_${EBVERSIONSCOTCH:-system}"
+export SCOTCH_ARCH_PATH="$EBROOTSCOTCH"

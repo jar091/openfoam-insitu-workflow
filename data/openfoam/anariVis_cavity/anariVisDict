@@ -1,0 +1,78 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  anariVis function object for the 2D cavity (included by controlDict).
+  Variables set by the run script (scripts/run_anariVis_cavity.sh):
+    library, compositing, renderRanksPerNode
+\*---------------------------------------------------------------------------*/
+
+anariVis
+{
+    type            anariVis;
+    libs            (anariVis);
+
+    executeControl  timeStep;
+    executeInterval 50;
+    writeControl    none;
+
+    mode            inSitu;
+    renderRanksPerNode 1;
+    synchronise     true;
+
+    library         barney_cpu;
+    compositing     auto;
+    resolution      (960 720);
+    pixelSamples    16;
+    passes          1;
+    background      (0.08 0.08 0.1);
+    outputDir       "<case>/images";
+    ambientRadiance 0.4;
+
+    camera
+    {
+        viewDirection (-0.35 -0.25 -1);
+        up            (0 1 0);
+        fov           30;
+        zoom          1.15;
+    }
+
+    surfaces
+    {
+        // Back wall (frontAndBack is one patch; it is coloured by |U|)
+        walls
+        {
+            type        patch;
+            patches     (fixedWalls);
+            colour      (0.75 0.75 0.75);
+        }
+        lid
+        {
+            type        patch;
+            patches     (movingWall);
+            colour      (0.9 0.6 0.2);
+        }
+        pIso
+        {
+            type        isoSurface;
+            isoField    p;
+            isoValue    0.5;
+            isoMethod   topo;
+            colourField magU;
+            colourMap   viridis;
+            range       (0 0.6);
+        }
+    }
+
+    volumes
+    {
+        speed
+        {
+            field       magU;
+            resolution  96;
+            colourMap   inferno;
+            range       (0 1);
+            opacity     ((0 0) (0.1 0.05) (1 0.9));
+            unitDistance 0.002;
+        }
+    }
+}
+
+// ************************************************************************* //

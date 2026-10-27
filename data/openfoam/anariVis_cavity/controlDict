@@ -1,0 +1,57 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// icoFoam cavity (64x64x1) with in-situ ANARI rendering (Phase 1 / 2).
+// The anariVis settings live in system/anariVisDict (#include below) so that
+// the library/compositing can be switched by the run script.
+
+application     icoFoam;
+
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         0.5;
+deltaT          0.001;
+
+writeControl    timeStep;
+writeInterval   1000000;    // no field output: diskless run
+purgeWrite      0;
+writeFormat     binary;
+writePrecision  6;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;
+
+functions
+{
+    // Derived fields, executed before anariVis in the same time step
+    magU
+    {
+        type            mag;
+        libs            (fieldFunctionObjects);
+        field           U;
+        result          magU;
+        executeControl  timeStep;
+        executeInterval 50;
+        writeControl    none;
+    }
+
+    #include "anariVisDict"
+}
+
+// ************************************************************************* //

@@ -1,0 +1,114 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  anariVis for cavity3D (lid at y = 0.1, domain [0,0.1]^3).
+  Edited by scripts/run_anariVis_cavity3D.sh (mode, library, compositing,
+  renderRanksPerNode, outputDir).
+\*---------------------------------------------------------------------------*/
+
+anariVis
+{
+    type            anariVis;
+    libs            (anariVis);
+
+    executeControl  timeStep;
+    executeInterval 20;
+    writeControl    none;
+
+    mode            inSitu;
+    renderRanksPerNode 1;
+    synchronise     true;
+    dropPolicy      drop;
+
+    library         barney_cpu;
+    compositing     auto;
+    resolution      (1280 960);
+    pixelSamples    16;
+    passes          1;
+    background      (0.07 0.07 0.09);
+    ambientRadiance 0.5;
+    outputDir       "<case>/images";
+
+    camera
+    {
+        viewDirection (-0.55 -0.45 -1);
+        up            (0 1 0);
+        fov           30;
+        zoom          1.2;
+    }
+
+    lights
+    {
+        key
+        {
+            type            directional;
+            direction       (0.4 -0.6 1);
+            cameraRelative  true;
+            intensity       3;
+        }
+    }
+
+    surfaces
+    {
+        // Slice near the back wall, coloured by |U|
+        back
+        {
+            type        cuttingPlane;
+            planeType   pointAndNormal;
+            pointAndNormalDict
+            {
+                point   (0.05 0.05 0.0005);
+                normal  (0 0 1);
+            }
+            colourField magU;
+            colourMap   coolToWarm;
+            range       (0 0.5);
+        }
+        // Slice near the floor
+        floor
+        {
+            type        cuttingPlane;
+            planeType   pointAndNormal;
+            pointAndNormalDict
+            {
+                point   (0.05 0.0005 0.05);
+                normal  (0 1 0);
+            }
+            colour      (0.55 0.55 0.6);
+        }
+        // Vortex core: Q-criterion iso-surface coloured by |U|
+        qIso
+        {
+            type        isoSurface;
+            isoField    Q;
+            isoValue    1000;
+            isoMethod   topo;
+            colourField magU;
+            colourMap   viridis;
+            range       (0 0.4);
+        }
+        // Semi-transparent |U| = 0.12 shell under the lid
+        uIso
+        {
+            type        isoSurface;
+            isoField    magU;
+            isoValue    0.12;
+            isoMethod   topo;
+            colour      (0.95 0.55 0.2);
+            opacity     0.35;
+        }
+    }
+
+    volumes
+    {
+        speed
+        {
+            field       magU;
+            resolution  128;
+            colourMap   inferno;
+            range       (0 1);
+            opacity     ((0 0) (0.15 0) (0.4 0.15) (1 0.8));
+            unitDistance 0.004;
+        }
+    }
+}
+
+// ************************************************************************* //

@@ -1,0 +1,181 @@
+<?xml version="1.0"?>
+<!-- DLRCJH combustor, look=vortex (data/cyclesphi/scenes/DLRCJH/make_dlrcjh_scene.py) -->
+<cycles>
+	<shader name="default_surface" />
+	<shader name="default_volume" />
+	<shader name="default_light" />
+	<shader name="default_background">
+		<background_shader name="bg_light">
+			<socket name="color" value="0.03 0.035 0.045 0" type_name="color" />
+			<socket name="strength" value="1" type_name="float" />
+		</background_shader>
+		<texture_coordinate name="bg_tc" />
+		<separate_xyz name="bg_sep" />
+		<map_range name="bg_mr">
+			<socket name="from_min" value="-0.5" type_name="float" />
+			<socket name="from_max" value="0.45" type_name="float" />
+			<socket name="clamp" value="true" type_name="boolean" />
+		</map_range>
+		<mix_color name="bg_grad">
+			<socket name="a" value="0.001 0.001 0.002 0" type_name="color" />
+			<socket name="b" value="0.016 0.019 0.03 0" type_name="color" />
+		</mix_color>
+		<background_shader name="bg_camera">
+			<socket name="strength" value="1" type_name="float" />
+		</background_shader>
+		<light_path name="bg_lightpath" />
+		<mix_closure name="bg_mix" />
+		<connect from_node="bg_tc" from_socket="generated" to_node="bg_sep" to_socket="vector" />
+		<connect from_node="bg_sep" from_socket="y" to_node="bg_mr" to_socket="value" />
+		<connect from_node="bg_mr" from_socket="result" to_node="bg_grad" to_socket="fac" />
+		<connect from_node="bg_grad" from_socket="result" to_node="bg_camera" to_socket="color" />
+		<connect from_node="bg_lightpath" from_socket="is_camera_ray" to_node="bg_mix" to_socket="fac" />
+		<connect from_node="bg_light" from_socket="background" to_node="bg_mix" to_socket="closure1" />
+		<connect from_node="bg_camera" from_socket="background" to_node="bg_mix" to_socket="closure2" />
+		<connect from_node="bg_mix" from_socket="closure" to_node="output" to_socket="surface" />
+	</shader>
+	<shader name="default_empty" />
+
+	<shader name="vol_shader">
+		<attribute name="v_attr_Q"><socket name="attribute" value="Q" type_name="string" /></attribute>
+		<attribute name="v_attr_U"><socket name="attribute" value="U_mag" type_name="string" /></attribute>
+		<map_range name="v_mr_Q">
+			<socket name="from_min" value="50000000.0" type_name="float" />
+			<socket name="from_max" value="1000000000.0" type_name="float" />
+			<socket name="clamp" value="true" type_name="boolean" />
+		</map_range>
+		<math name="v_qpow"><socket name="math_type" value="power" type_name="enum" />
+			<socket name="value2" value="0.7" type_name="float" /></math>
+		<map_range name="v_mr_U">
+			<socket name="from_min" value="10.0" type_name="float" />
+			<socket name="from_max" value="140.0" type_name="float" />
+			<socket name="clamp" value="true" type_name="boolean" />
+		</map_range>
+		<rgb_ramp name="v_ramp_Q">
+			<socket name="ramp" value="6192" type_name="array_color" />
+			<socket name="ramp_alpha" value="10312" type_name="array_float" />
+		</rgb_ramp>
+		<rgb_ramp name="v_ramp_U">
+			<socket name="ramp" value="6192" type_name="array_color" />
+			<socket name="ramp_alpha" value="10312" type_name="array_float" />
+		</rgb_ramp>
+		<math name="v_dens"><socket name="math_type" value="multiply" type_name="enum" />
+			<socket name="value2" value="40.0" type_name="float" /></math>
+		<math name="v_emis"><socket name="math_type" value="multiply" type_name="enum" />
+			<socket name="value2" value="70.0" type_name="float" /></math>
+		<principled_volume name="v_pv">
+			<socket name="anisotropy" value="0.35" type_name="float" />
+			<socket name="absorption_color" value="0 0 0 0" type_name="color" />
+		</principled_volume>
+		<connect from_node="v_attr_Q" from_socket="fac" to_node="v_mr_Q" to_socket="value" />
+		<connect from_node="v_mr_Q" from_socket="result" to_node="v_qpow" to_socket="value1" />
+		<connect from_node="v_qpow" from_socket="value" to_node="v_ramp_Q" to_socket="fac" />
+		<connect from_node="v_attr_U" from_socket="fac" to_node="v_mr_U" to_socket="value" />
+		<connect from_node="v_mr_U" from_socket="result" to_node="v_ramp_U" to_socket="fac" />
+		<connect from_node="v_ramp_Q" from_socket="alpha" to_node="v_dens" to_socket="value1" />
+		<connect from_node="v_ramp_Q" from_socket="alpha" to_node="v_emis" to_socket="value1" />
+		<connect from_node="v_ramp_U" from_socket="color" to_node="v_pv" to_socket="color" />
+		<connect from_node="v_ramp_U" from_socket="color" to_node="v_pv" to_socket="emission_color" />
+		<connect from_node="v_dens" from_socket="value" to_node="v_pv" to_socket="density" />
+		<connect from_node="v_emis" from_socket="value" to_node="v_pv" to_socket="emission_strength" />
+		<connect from_node="v_pv" from_socket="volume" to_node="output" to_socket="volume" />
+	</shader>
+
+	<shader name="mat_ceramic">
+		<principled_bsdf name="bsdf">
+			<socket name="base_color" value="0.03 0.035 0.045 0" type_name="color" />
+			<socket name="roughness" value="0.55" type_name="float" />
+			<socket name="metallic" value="0.0" type_name="float" />
+		</principled_bsdf>
+		<connect from_node="bsdf" from_socket="BSDF" to_node="output" to_socket="surface" />
+	</shader>
+	<shader name="mat_metal">
+		<principled_bsdf name="bsdf">
+			<socket name="base_color" value="0.55 0.56 0.58 0" type_name="color" />
+			<socket name="roughness" value="0.32" type_name="float" />
+			<socket name="metallic" value="1.0" type_name="float" />
+		</principled_bsdf>
+		<connect from_node="bsdf" from_socket="BSDF" to_node="output" to_socket="surface" />
+	</shader>
+	<shader name="mat_window">
+		<transparent_bsdf name="tr">
+			<socket name="color" value="1 1 1 0" type_name="color" />
+		</transparent_bsdf>
+		<glossy_bsdf name="gl">
+			<socket name="color" value="0.9 0.95 1 0" type_name="color" />
+			<socket name="roughness" value="0.05" type_name="float" />
+		</glossy_bsdf>
+		<mix_closure name="mix">
+			<socket name="fac" value="0.06" type_name="float" />
+		</mix_closure>
+		<connect from_node="tr" from_socket="BSDF" to_node="mix" to_socket="closure1" />
+		<connect from_node="gl" from_socket="BSDF" to_node="mix" to_socket="closure2" />
+		<connect from_node="mix" from_socket="closure" to_node="output" to_socket="surface" />
+	</shader>
+
+	<mesh name="walls" geometry_type="0">
+		<socket name="used_shaders" value="mat_ceramic mat_metal mat_window" type_name="array_node" />
+		<socket name="triangles" value="3178588" type_name="array_int" />
+		<socket name="shader" value="4234356" type_name="array_int" />
+		<socket name="smooth" value="4586284" type_name="array_boolean" />
+		<attribute name="P" std="ATTR_STD_POSITION" type="point" element="ATTR_ELEMENT_VERTEX" flags="0" size="263936" buffer="11348" />
+	</mesh>
+	<object name="walls_object">
+		<socket name="geometry" value="walls" type_name="node" />
+		<socket name="tfm" value="18.96097 0 0 -4.740242 0 18.96097 0 -0 0 0 18.96097 -0" type_name="transform" />
+	</object>
+
+	<camera name="camera">
+		<socket name="matrix" value="0.8660254 -0.1545085 -0.4755283 4.631885 0 0.9510565 -0.309017 3.040755 -0.5 -0.2676166 -0.8236391 8.433176" type_name="transform" />
+		<socket name="fov" value="0.5235988" type_name="float" />
+		<socket name="nearclip" value="0.01" type_name="float" />
+		<socket name="farclip" value="1000" type_name="float" />
+	</camera>
+	<film name="film">
+		<socket name="exposure" value="2.0" type_name="float" />
+		<socket name="filter_type" value="blackman_harris" type_name="enum" />
+		<socket name="filter_width" value="1.5" type_name="float" />
+	</film>
+	<background name="background">
+		<socket name="visibility" value="157" type_name="uint" />
+	</background>
+	<integrator name="integrator">
+		<socket name="max_bounce" value="1" type_name="int" />
+		<socket name="max_diffuse_bounce" value="2" type_name="int" />
+		<socket name="max_glossy_bounce" value="2" type_name="int" />
+		<socket name="max_volume_bounce" value="0" type_name="int" />
+		<socket name="transparent_max_bounce" value="8" type_name="int" />
+		<socket name="volume_ray_marching" value="true" type_name="boolean" />
+		<socket name="volume_max_steps" value="1024" type_name="int" />
+		<socket name="volume_step_rate" value="2.0" type_name="float" />
+		<socket name="sample_clamp_indirect" value="10.0" type_name="float" />
+		<socket name="use_adaptive_sampling" value="false" type_name="boolean" />
+		<socket name="use_denoise" value="true" type_name="boolean" />
+		<socket name="denoiser_type" value="openimagedenoise" type_name="enum" />
+		<socket name="denoise_use_gpu" value="false" type_name="boolean" />
+		<socket name="denoiser_prefilter" value="accurate" type_name="enum" />
+		<socket name="denoiser_quality" value="high" type_name="enum" />
+	</integrator>
+
+	<volume name="vdb_volume" geometry_type="2">
+		<socket name="used_shaders" value="vol_shader" type_name="array_node" />
+		<socket name="object_space" value="true" type_name="boolean" />
+		<socket name="step_size" value="0.0" type_name="float" />
+		<attribute name="Q" std="ATTR_STD_NONE" type="float" element="ATTR_ELEMENT_VOXEL" flags="0" buffer="{VDB_DATA}" volume_type="openvdb" />
+		<attribute name="U_mag" std="ATTR_STD_NONE" type="float" element="ATTR_ELEMENT_VOXEL" flags="0" buffer="{VDB_DATA}" volume_type="openvdb" />
+	</volume>
+	<object name="vdb_object">
+		<socket name="geometry" value="vdb_volume" type_name="node" />
+		<socket name="tfm" value="18.96097 0 0 -4.740242 0 18.96097 0 -0 0 0 18.96097 -0" type_name="transform" />
+		<socket name="visibility" value="1693" type_name="uint" />
+	</object>
+
+	<backgroundlight name="world_light" geometry_type="5">
+		<socket name="used_shaders" value="default_background" type_name="array_node" />
+		<socket name="light_type" value="background" type_name="enum" />
+		<socket name="use_mis" value="true" type_name="boolean" />
+	</backgroundlight>
+	<object name="world_object">
+		<socket name="geometry" value="world_light" type_name="node" />
+	</object>
+</cycles>

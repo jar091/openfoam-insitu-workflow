@@ -1,0 +1,48 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  In-transit anariVis entry for system/controlDict "functions".
+
+  The renderer runs as a separate OpenFOAM world (MPMD, one MPI_COMM_WORLD),
+  e.g. a Slurm heterogeneous step:
+
+    srun --mpi=pmix -N1 -n128 -w cn627 icoFoam -parallel -world sim \
+       : -N2 -n2 --ntasks-per-node=1 -w cn651,cn652 \
+         anariVisRender -parallel -world render -mpi-threads
+
+  The render settings below are sent to anariVisRender at the first frame.
+  The solver only packs and posts non-blocking sends; if the renderer is
+  still busy with the previous frame the new frame is dropped
+  (dropPolicy drop) or the solver waits (dropPolicy block).
+\*---------------------------------------------------------------------------*/
+
+anariVisInTransit
+{
+    type            anariVis;
+    libs            (anariVis);
+    executeControl  timeStep;
+    executeInterval 20;
+    writeControl    none;
+
+    mode            inTransit;
+    dropPolicy      drop;               // drop | block
+
+    library         barney_cpu;         // Barney "mpi" over the render ranks
+    compositing     auto;
+    resolution      (1280 960);
+    pixelSamples    16;
+    outputDir       "<case>/postProcessing/anariVisInTransit";
+
+    surfaces
+    {
+        lid    { type patch; patches (movingWall); colour (0.9 0.6 0.2); }
+        uIso
+        {
+            type        isoSurface;
+            isoField    magU;           // from a 'mag' function object
+            isoValue    0.12;
+            colour      (0.95 0.55 0.2);
+            opacity     0.35;
+        }
+    }
+}
+
+// ************************************************************************* //

@@ -1,0 +1,2 @@
+# OpenFOAM site override (FOAM_CONFIG_ETC): readline from Lmod module
+export READLINE_ARCH_PATH="$EBROOTLIBREADLINE"

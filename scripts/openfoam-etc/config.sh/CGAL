@@ -1,0 +1,6 @@
+# OpenFOAM site override (FOAM_CONFIG_ETC): CGAL (header-only) + Boost + GMP/MPFR
+# from Lmod modules. Library paths are already provided by the modules.
+export BOOST_ARCH_PATH="$EBROOTBOOST"
+export CGAL_ARCH_PATH="$EBROOTCGAL"
+export GMP_ARCH_PATH="$EBROOTGMP"
+export MPFR_ARCH_PATH="$EBROOTMPFR"

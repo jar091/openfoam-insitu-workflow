@@ -1,0 +1,115 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  mesioVDB example: direct MPI-to-OpenVDB export from OpenFOAM v2606
+  (libmesioFoam, src/openfoam-insitu-modules/mesioFoam, docs/notes/mesio_openfoam_functionobject.md)
+
+  Paste the 'functions' dictionary into system/controlDict (or #include this
+  file inside an existing 'functions' dictionary after removing the outer
+  braces). Tested with icoFoam (cavity, cavity3D 1M on 128 and 512 ranks) and
+  pimpleFoam (moving mesh, adaptive refinement). Several mesioVDB entries are
+  allowed (Mesio in-situ API 2, install/mesio-next).
+
+  Run environment: source scripts/env_mesio_openfoam.sh (sets MESIO_ROOT,
+  OPENVDB_ROOT, OMP_NUM_THREADS=1); the library is in $FOAM_USER_LIBBIN.
+\*---------------------------------------------------------------------------*/
+
+// For outputPolicy vdbOnly the solver must not write time directories in the
+// run: writeControl timeStep with a writeInterval larger than the number of
+// time steps (set an explicit, rare value instead if restart checkpoints are
+// needed, together with outputPolicy standard).
+//
+// writeControl    timeStep;
+// writeInterval   1000000;
+
+functions
+{
+    // 1) Derived fields: standard OpenFOAM function objects, listed BEFORE
+    //    the exporter, executed at the export cadence, never written to disk.
+    Q1
+    {
+        type            Q;
+        libs            (fieldFunctionObjects);
+        field           U;
+        result          Q;
+        executeControl  timeStep;
+        executeInterval 50;             // = mesioVDB1 writeInterval
+        writeControl    none;           // compute in memory only
+    }
+
+    vorticity1
+    {
+        type            vorticity;
+        libs            (fieldFunctionObjects);
+        field           U;              // result: vorticity (volVectorField)
+        executeControl  timeStep;
+        executeInterval 50;
+        writeControl    none;
+    }
+
+    // 2) Exporter: one .vdb per export step for all MPI ranks
+    mesioVDB1
+    {
+        type            mesioVDB;
+        libs            (mesioFoam);
+
+        // Export cadence (standard function-object time control)
+        writeControl    timeStep;
+        writeInterval   50;
+
+        // Registered volume fields (native or derived). Grid names:
+        //   scalar s -> s;  vector v -> v_mag, v_x, v_y, v_z (see below);
+        //   (symm)tensor t -> t_mag, t_xx, ...
+        fields          (U p Q vorticity);
+        vectorComponents (mag);         // any of: mag x y z
+        tensorComponents (mag);         // any of: mag xx xy xz yx ...
+
+        // Voxel grid: voxelSize (world units) overrides density
+        // (= voxels along the longest edge of the box)
+        density         256;
+        // voxelSize    0.0005;
+        // box          (0 0 0) (0.1 0.1 0.05);     // voxelize a sub-box only (boundBox syntax)
+
+        // Output: one file per export, written by writerRank as <file>.tmp
+        // and renamed when complete. Relative outputDir = relative to the case.
+        outputDir       "VDB";
+        filePattern     "%NAME%_%TIMEINDEX%.vdb";  // %NAME% %TIME% %TIMEINDEX% %COUNT%
+        indexWidth      6;
+        writerRank      0;
+
+        // Diagnostics
+        missingField    error;          // error | warn | skip
+        staleField      error;          // error | warn | ignore
+        outputPolicy    vdbOnly;        // standard | vdbOnly (start-up audit)
+        policyAction    error;          // error | warn
+        onError         error;          // Mesio error: error (FatalError) | warn (skip the export)
+
+        // Mesio writer and sampling (defaults: distributed, blosc, cellPoint)
+        // writer       distributed;    // distributed | parallel | single
+        // compression  blosc;          // blosc | none
+        // sampling     cellPoint;      // cellPoint (interpolated) | cell (value of the
+        //                              // cell containing the voxel centre, no wall smoothing)
+        // memoryTracking false;        // true: per-export peak RSS (resets the process VmHWM)
+
+        // Mesh motion is detected automatically (movePoints/updateMesh);
+        // movingMesh true only pre-allocates the moving-mesh mode.
+        // movingMesh   false;
+        // verbosity    0;              // 1: Mesio progress output
+    }
+
+    // 3) Optional second exporter (own Mesio context), e.g. a fine box with
+    //    cell values next to the coarse overview above
+    // mesioVDB2
+    // {
+    //     type            mesioVDB;
+    //     libs            (mesioFoam);
+    //     writeControl    timeStep;
+    //     writeInterval   50;
+    //     fields          (U Q);
+    //     box             (0.02 0.02 0.04) (0.06 0.06 0.05);
+    //     voxelSize       0.0001;
+    //     sampling        cell;
+    //     outputDir       "VDB_box";
+    //     outputPolicy    vdbOnly;
+    // }
+}
+
+// ************************************************************************* //

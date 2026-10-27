@@ -1,0 +1,62 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  Minimal in-situ anariVis entry for system/controlDict "functions".
+  Run the solver with -mpi-threads when library is barney_cpu and more
+  than one render rank is used (Barney "mpi" device).
+\*---------------------------------------------------------------------------*/
+
+Q
+{
+    type            Q;
+    libs            (fieldFunctionObjects);
+    executeControl  timeStep;
+    executeInterval 20;
+    writeControl    none;
+}
+
+anariVisInSitu
+{
+    type            anariVis;
+    libs            (anariVis);         // libanariVis.so on LD_LIBRARY_PATH
+    executeControl  timeStep;
+    executeInterval 20;
+    writeControl    none;
+
+    mode            inSitu;
+    renderRanksPerNode 1;               // render ranks per node (-1: all)
+    synchronise     true;               // other ranks sleep while rendering
+
+    library         barney_cpu;         // barney_cpu | helide | cycles | ptc
+    compositing     auto;               // auto | none | barney | deep | ptc
+    resolution      (1280 720);
+    pixelSamples    16;
+    outputDir       "<case>/postProcessing/anariVisInSitu";
+
+    camera { viewDirection (-1 -0.6 -1.2); up (0 1 0); fov 30; }
+
+    surfaces
+    {
+        walls  { type patch; patches (walls); colour (0.7 0.7 0.7); }
+        vortex
+        {
+            type        isoSurface;
+            isoField    Q;
+            isoValue    1000;
+            isoMethod   topo;
+            colourField U;              // vectors: magnitude
+            colourMap   viridis;        // or ((0 r g b) ... (1 r g b))
+        }
+    }
+
+    volumes
+    {
+        speed
+        {
+            field       U;
+            resolution  128;            // points along the longest axis
+            colourMap   inferno;
+            opacity     ((0 0) (0.3 0.05) (1 0.8));
+        }
+    }
+}
+
+// ************************************************************************* //

@@ -1,0 +1,2 @@
+# OpenFOAM site override (FOAM_CONFIG_ETC): FFTW from foss/2025b
+export FFTW_ARCH_PATH="$EBROOTFFTW"

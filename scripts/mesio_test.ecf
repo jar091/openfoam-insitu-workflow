@@ -1,0 +1,25 @@
+# mesio: decomposed OpenFOAM case -> one OpenVDB file per time step
+INPUT_TYPE  EXTERNAL_FILE;
+
+INPUT {
+  FORMAT    OPENFOAM;
+  PATH      /scratch/project/eu-25-121/milanjaros/openfoam/runs/mesio_test/cavity3d;
+
+  OPENFOAM {
+    TIME      0.004:0.02;
+    VARIABLES p,U;
+  }
+
+  DECOMPOSITION {
+    PARALLEL_DECOMPOSER NONE;
+  }
+}
+
+OUTPUT {
+  PATH                    [ARG0];
+  FORMAT                  OPENVDB;
+  MODE                    SYNC;
+  RESULTS_STORE_FREQUENCY EVERY_SUBSTEP;
+  VOLUME_DENSITY          48;
+  VOLUME_DIVISION         1;
+}

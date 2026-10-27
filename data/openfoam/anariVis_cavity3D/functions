@@ -1,0 +1,34 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  Function objects for the cavity3D (HPC committee, 1M/8M) in-situ /
+  in-transit ANARI test. Included at the end of system/controlDict:
+
+      functions { #include "functions" }
+
+  Order matters: Q and magU are computed before anariVis in the same step.
+\*---------------------------------------------------------------------------*/
+
+Q
+{
+    type            Q;
+    libs            (fieldFunctionObjects);
+    field           U;
+    result          Q;
+    executeControl  timeStep;
+    executeInterval 20;
+    writeControl    none;
+}
+
+magU
+{
+    type            mag;
+    libs            (fieldFunctionObjects);
+    field           U;
+    result          magU;
+    executeControl  timeStep;
+    executeInterval 20;
+    writeControl    none;
+}
+
+#include "anariVisDict"
+
+// ************************************************************************* //
